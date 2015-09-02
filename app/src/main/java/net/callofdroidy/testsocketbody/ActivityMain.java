@@ -27,7 +27,7 @@ public class ActivityMain extends AppCompatActivity {
     Pattern pattern_sso_server_er = Pattern.compile("sso_server_er=[A-Za-z0-9-%]+;");
     Pattern pattern_sso_server_ern = Pattern.compile("sso_server_ern=[A-Za-z0-9-%]+;");
 
-    private String nextPath = "/sso_client/";
+    private String nextPath = "/aloha/dashboard/";
     private String sso_oppai_rid = "";
     private String PHPSESSID = "";
     private String sso_server_id = "";
@@ -45,7 +45,7 @@ public class ActivityMain extends AppCompatActivity {
         setContentView(R.layout.activity_main);
 
         //parameters list: (method, urlHost, port, path, extraHeaderData, bodyData, round)
-        new ATSendSocketHTTPRequest().execute("GET", "104.236.52.185", "80", nextPath, null, null, "1");
+        new ATSendSocketHTTPRequest().execute("GET", "dob.apengage.io", "80", nextPath, null, null, "1");
     }
 
     //this method will be wrapped in the AsyncTask
@@ -96,7 +96,7 @@ public class ActivityMain extends AppCompatActivity {
         while (matcher.find()){
             switch (var){
                 case "nextPath":
-                    nextPath = matcher.group(0).substring(31, matcher.group(0).length() - 14);
+                    nextPath = matcher.group(0).substring(32, matcher.group(0).length() - 14);
                     Log.e("nextPath", nextPath);
                     break;
                 case "sso_oppai_rid":
@@ -152,22 +152,25 @@ public class ActivityMain extends AppCompatActivity {
         switch (round){
             case 1:
                 matchAPattern(respRaw, pattern_Location, "nextPath");
-                matchAPattern(respRaw, pattern_sso_oppai_rid, "sso_oppai_rid");
-                matchAPattern(respRaw, pattern_PHPSESSID, "PHPSESSID");
-                new ATSendSocketHTTPRequest().execute("GET", "104.236.52.185", "80", nextPath, null, null, "2");
+                //matchAPattern(respRaw, pattern_sso_oppai_rid, "sso_oppai_rid");
+                //matchAPattern(respRaw, pattern_PHPSESSID, "PHPSESSID");
+                //do round 2 request
+                new ATSendSocketHTTPRequest().execute("GET", "104.236.111.213", "80", nextPath, null, null, "2");
                 break;
             case 2:
                 matchAPattern(respRaw, pattern_Location, "nextPath");
                 matchAPattern(respRaw, pattern_sso_server_id, "sso_server_id");
-                new ATSendSocketHTTPRequest().execute("GET", "104.236.52.185", "80", nextPath,
-                        "Cookie: " + sso_server_id + " " + PHPSESSID.substring(0, PHPSESSID.length() - 1), null, "3");
+                //matchAPattern(respRaw, pattern_sso_server_ns, "sso_server_ns");
+                //do round 3 request
+                new ATSendSocketHTTPRequest().execute("GET", "104.236.111.213", "80", nextPath,
+                        "Cookie: " + sso_server_id.substring(0, sso_server_id.length() - 1), null, "3");
                 break;
             case 3:
                 matchAPattern(respRaw, pattern_login, "login");
                 nextPath = "/sso/server/index.php?sso_provider=sso_login";
                 Log.e("nextPath", nextPath);
-                String dataExtraHeader = "Cookie: " + sso_server_id + " " + PHPSESSID.substring(0, PHPSESSID.length() - 1) + "\n" +
-                        "Content-Type: multipart/form-data; boundary=----WebKitFormBoundarydDgacBdUjUzQsKuW";
+                //String dataExtraHeader = "Cookie: " + sso_server_id + " " + sso_server_ns.substring(0, PHPSESSID.length() - 1) + "\n" +
+                String dataExtraHeader = "Cookie: " + sso_server_id.substring(0, sso_server_id.length() - 1);
                 String dataLogin = username + "=krishna&" + password + "=krishna1&" + signin + "=Sign in";
                 new ATSendSocketHTTPRequest().execute("POST", "104.236.52.185", "80", nextPath, dataExtraHeader, dataLogin, "4");
                 break;
